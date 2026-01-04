@@ -26,6 +26,7 @@ let todoList = [
     }
     }
     
+
     
 function getAllTodo(req, res) {
   // 1. Read query params (they come as strings)
