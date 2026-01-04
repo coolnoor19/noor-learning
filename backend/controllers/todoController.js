@@ -26,6 +26,7 @@ let todoList = [
     }
     }
     
+    
 function getAllTodo(req, res) {
   // 1. Read query params (they come as strings)
   const page = Number(req.query.page) || 1;
