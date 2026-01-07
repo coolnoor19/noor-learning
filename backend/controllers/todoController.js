@@ -77,12 +77,24 @@ function getAllTodo(req, res) {
   });
 }
 
-function getSingleTodo(req, res){
-    const id = req.params.id;
-    const todo = todoList.find((todo) => {
-  return todo.id === id;
-} )
-    res.status(200).json(todo)
+// function getSingleTodo(req, res){
+//     const id = req.params.id;
+//     const todo = todoList.find((todo) => {
+//   return todo.id === id;
+// } )
+//     res.status(200).json(todo)
+// }
+async function getSingleTodo( req , res){
+    const { id } = req.params
+    try {
+        const todo = await Todo.findById(id)
+        res.status(200).json(todo)
+    } catch (error) {
+        res.status(500).json({
+            message : "could not find this todo",
+            error : error.message
+        })
+    }
 }
 
 function updateTodo(req, res){
