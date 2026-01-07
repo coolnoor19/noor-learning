@@ -27,24 +27,36 @@ let todoList = [
     }
     
 
-    
+
 function getAllTodo(req, res) {
   // 1. Read query params (they come as strings)
   const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const limit = Number(req.query.limit) || 2;
+  const complete = req.query.complete;
+
+  // Filter todos based on 'complete' query param if provided
+
+  let filteredTodos = [ ...todoList ] ;
+
+  if (complete !== undefined) {
+    const isComplete = complete === "true";
+    filteredTodos = filteredTodos.filter(
+      (todo) => todo.complete === isComplete
+    );
+  }
 
   // 2. Calculate start and end index
   const startIndex = (page - 1) * limit;
   const endIndex = page * limit;
 
   // 3. Get paginated todos
-  const paginatedTodos = todoList.slice(startIndex, endIndex);
+  const paginatedTodos = filteredTodos.slice(startIndex, endIndex);
 
   // 4. Send response with metadata
   res.status(200).json({
     page: page,
     limit: limit,
-    totalTodos: todoList.length,
+    totalTodos: filteredTodos.length,
     totalPages: Math.ceil(todoList.length / limit),
     data: paginatedTodos,
   });
