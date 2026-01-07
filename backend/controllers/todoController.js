@@ -97,20 +97,40 @@ async function getSingleTodo( req , res){
     }
 }
 
-function updateTodo(req, res){
-    const { id } = req.params;
-    const { title , complete } = req.body;
-    todoList = todoList.map((todo) => {
-        if(todo.id === id){
-            return {
-                ...todo,
-                title: title,
-                complete: complete
-            }
-        }
-        return todoList;
+// function updateTodo(req, res){
+//     const { id } = req.params;
+//     const { title , complete } = req.body;
+//     todoList = todoList.map((todo) => {
+//         if(todo.id === id){
+//             return {
+//                 ...todo,
+//                 title: title,
+//                 complete: complete
+//             }
+//         }
+//         return todoList;
+//     })
+//     res.status(200).json(todoList)
+// }
+async function updateTodo(req , res){
+    const { id} = req.params;
+const { title , complete } = req.body;
+try {
+    const updatedTodo = await Todo.findByIdAndUpdate(
+  id,
+  { title, complete },
+  { new: true }
+);
+    res.status(200).json({
+        message : "todo updated successfully",
+        updatedTodo
     })
-    res.status(200).json(todoList)
+} catch (error) {
+    res.status(500).json({
+        message : "could not update todo",
+        error : error.message
+    })
+}
 }
 
 function deleteTodo(req, res){
