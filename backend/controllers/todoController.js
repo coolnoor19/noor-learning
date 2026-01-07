@@ -1,4 +1,4 @@
-
+import Todo from "../models/Todo.js"
 let todoList = [
     { id : "1" , title: "first todo" , complete : false },
     { id : "2" , title: "second todo" , complete : true },
@@ -8,24 +8,39 @@ let todoList = [
     { id : "6" , title: "sixth todo" , complete : true },
 ]
 
- function createTodo( req , res){
-    const { title , complete } = req.body;
-    const newTodo = {
-        id: (todoList.length + 1).toString(),
-        title: title,
-        complete: complete
-    }
-    todoList.push(newTodo); 
+//  async function createTodo( req , res){
+//     const { title , complete } = req.body;
+//     const newTodo = {
+//         id: (todoList.length + 1).toString(),
+//         title: title,
+//         complete: complete
+//     }
+//     todoList.push(newTodo); 
+//     try {
+//         res.status(201).json(newTodo)
+//     } catch (error) {
+//         res.status(500).json({
+//             message: "could not create todo",   
+//             error: error.message    
+//         })
+//     }
+//     }
+async function createTodo(req, res) {
+    const { title , complete} = req.body;
     try {
+        const newTodo = await Todo.create({
+            title , 
+            complete
+        })
+
         res.status(201).json(newTodo)
     } catch (error) {
         res.status(500).json({
-            message: "could not create todo",   
-            error: error.message    
+            message : "could not create todo",
+            error : error.message
         })
     }
-    }
-    
+}
 
 
 function getAllTodo(req, res) {
