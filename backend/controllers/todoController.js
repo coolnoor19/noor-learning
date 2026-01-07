@@ -1,12 +1,4 @@
 import Todo from "../models/Todo.js"
-let todoList = [
-    { id : "1" , title: "first todo" , complete : false },
-    { id : "2" , title: "second todo" , complete : true },
-    { id : "3" , title: "third todo" , complete : false },
-    { id : "4" , title: "fourth todo" , complete : true },
-    { id : "5" , title: "fifth todo" , complete : false },
-    { id : "6" , title: "sixth todo" , complete : true },
-]
 
 //  async function createTodo( req , res){
 //     const { title , complete } = req.body;
@@ -43,38 +35,77 @@ async function createTodo(req, res) {
 }
 
 
-function getAllTodo(req, res) {
-  // 1. Read query params (they come as strings)
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 2;
-  const complete = req.query.complete;
+// function getAllTodo(req, res) {
+//   // 1. Read query params (they come as strings)
+//   const page = Number(req.query.page) || 1;
+//   const limit = Number(req.query.limit) || 2;
+//   const complete = req.query.complete;
 
-  // Filter todos based on 'complete' query param if provided
+//   // Filter todos based on 'complete' query param if provided
 
-  let filteredTodos = [ ...todoList ] ;
+//   let filteredTodos = [ ...todoList ] ;
 
-  if (complete !== undefined) {
-    const isComplete = complete === "true";
-    filteredTodos = filteredTodos.filter(
-      (todo) => todo.complete === isComplete
-    );
+//   if (complete !== undefined) {
+//     const isComplete = complete === "true";
+//     filteredTodos = filteredTodos.filter(
+//       (todo) => todo.complete === isComplete
+//     );
+//   }
+
+//   // 2. Calculate start and end index
+//   const startIndex = (page - 1) * limit;
+//   const endIndex = page * limit;
+
+//   // 3. Get paginated todos
+//   const paginatedTodos = filteredTodos.slice(startIndex, endIndex);
+
+//   // 4. Send response with metadata
+//   res.status(200).json({
+//     page: page,
+//     limit: limit,
+//     totalTodos: filteredTodos.length,
+//     totalPages: Math.ceil(todoList.length / limit),
+//     data: paginatedTodos,
+//   });
+// }
+
+
+async function getAllTodo(req, res) {
+  try {
+    // 1. Read query params (always strings)
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 2;
+    const { complete } = req.query;
+
+    // 2. Build MongoDB query object
+    const query = {};
+
+    if (complete !== undefined) {
+      query.complete = complete === "true";
+    }
+
+    // 3. Count total matching todos
+    const totalTodos = await Todo.countDocuments(query);
+
+    // 4. Fetch paginated todos from DB
+    const todos = await Todo.find(query)
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    // 5. Send response with metadata
+    res.status(200).json({
+      page,
+      limit,
+      totalTodos,
+      totalPages: Math.ceil(totalTodos / limit),
+      data: todos,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Could not fetch todos",
+      error: error.message,
+    });
   }
-
-  // 2. Calculate start and end index
-  const startIndex = (page - 1) * limit;
-  const endIndex = page * limit;
-
-  // 3. Get paginated todos
-  const paginatedTodos = filteredTodos.slice(startIndex, endIndex);
-
-  // 4. Send response with metadata
-  res.status(200).json({
-    page: page,
-    limit: limit,
-    totalTodos: filteredTodos.length,
-    totalPages: Math.ceil(todoList.length / limit),
-    data: paginatedTodos,
-  });
 }
 
 // function getSingleTodo(req, res){
@@ -133,13 +164,28 @@ try {
 }
 }
 
-function deleteTodo(req, res){
+// function deleteTodo(req, res){
+//     const { id } = req.params;
+//     todoList = todoList.filter((todo) => {
+//         return todo.id !== id;
+//     })
+//     res.status(200).json(todoList)
+// }
+async function deleteTodo(req , res){
     const { id } = req.params;
-    todoList = todoList.filter((todo) => {
-        return todo.id !== id;
-    })
-    res.status(200).json(todoList)
-}
+    try{
+        const deleteTodo = await Todo.findByIdAndDelete(id)
+        res.status(200).json({
+            message : "todo deleted successfullu",
+            deleteTodo
+        })
+    } catch (error) {
+        res.status(500).json({
+            message : "could not delete todo",
+            error : error.message
+        })
+    }
+ }
 
 
 
