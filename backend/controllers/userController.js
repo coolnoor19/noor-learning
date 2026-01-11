@@ -2,7 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 
-
+// now I have to add relationships between USESR model and TODO model
 let JWT_SECRET = "thisisasecretkeyforjwttoken"
 
 async function createUser( req , res){
