@@ -8,6 +8,6 @@ router.post("/" , authMiddleware , createTodo)
 router.get("/" , getAllTodo)
 router.get("/:id" , getSingleTodo)
 router.put("/:id" ,authMiddleware , updateTodo)
-router.delete("/:id" , deleteTodo)
+router.delete("/:id" ,authMiddleware ,  deleteTodo)
 
 export default router;
